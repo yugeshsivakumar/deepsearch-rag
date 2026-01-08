@@ -1,6 +1,8 @@
 from http.server import BaseHTTPRequestHandler
 import os
 import json
+import sys
+import traceback
 import requests
 from bs4 import BeautifulSoup
 from google import genai
@@ -17,49 +19,37 @@ def search_google_cse(query, count=3):
     items = resp.json().get("items", [])
     return [{"title": item.get("title", ""), "snippet": item.get("snippet", ""), "link": item.get("link", "")} for item in items]
 
-def fetch_page_text(url, max_chars=1500):
+def fetch_page_text(url):
     try:
         r = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
         soup = BeautifulSoup(r.text, "html.parser")
-        for tag in soup(["script", "style", "noscript", "svg"]):
+        for tag in soup(["script", "style"]):
             tag.decompose()
-        text = " ".join([t.strip() for t in soup.get_text().splitlines() if t.strip()])
-        return text[:max_chars]
+        return " ".join(soup.stripped_strings)[:1000]
     except:
         return ""
-
-def call_gemini(prompt):
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    response = client.models.generate_content(model="gemini-2.0-flash-exp", contents=prompt)
-    return response.text if hasattr(response, 'text') else str(response)
 
 def google_rag(query, top_k=3):
     results = search_google_cse(query, count=top_k)
     pages = []
     
-    for r in results:
-        text = fetch_page_text(r["link"])
+    for r in results[:top_k]:
         pages.append({
             "title": r["title"],
             "snippet": r["snippet"],
             "link": r["link"],
-            "content": text
+            "content": fetch_page_text(r["link"])
         })
     
-    context_parts = []
-    for i, p in enumerate(pages, 1):
-        context_parts.append(f"[Source {i}] {p['title']}\nURL: {p['link']}\nSnippet: {p['snippet']}\nExtract: {p['content'][:800]}")
+    context = "\n\n".join([f"[{i}] {p['title']}\n{p['snippet']}\n{p['content'][:500]}" for i, p in enumerate(pages, 1)])
     
-    prompt = f"""The user asked: "{query}"
-
-Here are web results:
-
-{chr(10).join(context_parts)}
-
-Give a clear answer in markdown. Cite sources by number."""
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-exp",
+        contents=f'User asked: "{query}"\n\nWeb results:\n{context}\n\nAnswer in markdown, cite sources:'
+    )
     
-    answer = call_gemini(prompt)
-    return answer, pages
+    return response.text, pages
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -71,37 +61,37 @@ class handler(BaseHTTPRequestHandler):
     
     def do_POST(self):
         try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length).decode('utf-8')
-            data = json.loads(body)
+            print("=== Starting request ===", file=sys.stderr)
             
-            query = data.get('query', '').strip()
-            top_k = min(int(data.get('top_k', 3)), 3)
+            length = int(self.headers.get('Content-Length', 0))
+            body = json.loads(self.rfile.read(length).decode())
+            query = body.get('query', '').strip()
+            
+            print(f"Query: {query}", file=sys.stderr)
             
             if not query:
-                raise ValueError('Query is required')
+                raise ValueError('No query')
             
-            answer, sources = google_rag(query, top_k)
+            answer, sources = google_rag(query, 3)
             
-            response_data = {
-                'answer': answer,
-                'sources': sources
-            }
+            print(f"Got answer, {len(sources)} sources", file=sys.stderr)
+            
+            result = json.dumps({'answer': answer, 'sources': sources}, ensure_ascii=False)
             
             self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
+            self.wfile.write(result.encode('utf-8'))
             
-            response_json = json.dumps(response_data, ensure_ascii=False)
-            self.wfile.write(response_json.encode('utf-8'))
+            print("=== Success ===", file=sys.stderr)
             
         except Exception as e:
-            error_response = {'error': str(e)}
+            print(f"ERROR: {str(e)}", file=sys.stderr)
+            print(traceback.format_exc(), file=sys.stderr)
             
             self.send_response(500)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            
-            self.wfile.write(json.dumps(error_response).encode('utf-8'))
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
