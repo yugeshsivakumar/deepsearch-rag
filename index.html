@@ -2,26 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Google RAG Search - AI Powered Search</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .markdown-content h1 {
-            font-size: 1.875rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #0f172a;
             margin-top: 1.5rem;
             margin-bottom: 1rem;
         }
+        @media (min-width: 640px) {
+            .markdown-content h1 { font-size: 1.875rem; }
+        }
         .markdown-content h2 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: #1e293b;
             margin-top: 1.25rem;
             margin-bottom: 0.75rem;
         }
+        @media (min-width: 640px) {
+            .markdown-content h2 { font-size: 1.5rem; }
+        }
         .markdown-content h3 {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             font-weight: 600;
             color: #334155;
             margin-top: 1rem;
@@ -31,6 +37,10 @@
             color: #475569;
             margin-bottom: 1rem;
             line-height: 1.7;
+            font-size: 0.9375rem;
+        }
+        @media (min-width: 640px) {
+            .markdown-content p { font-size: 1rem; }
         }
         .markdown-content ul {
             list-style-type: disc;
@@ -41,6 +51,10 @@
         .markdown-content li {
             margin-bottom: 0.5rem;
             line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+        @media (min-width: 640px) {
+            .markdown-content li { font-size: 1rem; }
         }
         .markdown-content strong {
             font-weight: 600;
@@ -54,12 +68,13 @@
             padding: 0.125rem 0.375rem;
             border-radius: 0.25rem;
             font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             color: #be123c;
         }
         .markdown-content a {
             color: #2563eb;
             text-decoration: underline;
+            word-break: break-word;
         }
         .markdown-content a:hover {
             color: #1d4ed8;
@@ -82,46 +97,48 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        @media (max-width: 640px) {
+            button, a, input {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-    <!-- Header -->
     <header class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
                         Google RAG Search
                     </h1>
-                    <p class="text-sm text-slate-600">Powered by Gemini AI</p>
+                    <p class="text-xs sm:text-sm text-slate-600">Powered by Gemini AI</p>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Search Box -->
-        <div class="mb-8">
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
-                <label class="block text-sm font-medium text-slate-700 mb-3">
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div class="mb-6 sm:mb-8">
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6">
+                <label class="block text-sm font-medium text-slate-700 mb-2 sm:mb-3">
                     Ask me anything
                 </label>
-                <div class="flex gap-3">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <input
                         type="text"
                         id="queryInput"
-                        placeholder="e.g., What are the best laptops in 2024?"
-                        class="flex-1 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-400"
+                        placeholder="e.g., Best laptops 2024?"
+                        class="flex-1 px-3 sm:px-4 py-3 border border-slate-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-base"
                     />
                     <button
                         id="searchBtn"
-                        class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                        class="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg sm:rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl whitespace-nowrap text-sm sm:text-base"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -130,68 +147,61 @@
                     </button>
                 </div>
                 
-                <!-- Recent Searches -->
-                <div id="recentSearches" class="mt-4 pt-4 border-t border-slate-200 hidden">
+                <div id="recentSearches" class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 hidden">
                     <p class="text-xs text-slate-500 mb-2">Recent searches:</p>
                     <div id="searchHistory" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 hidden">
+        <div id="errorMessage" class="mb-4 sm:mb-6 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hidden">
             <p class="text-amber-800 text-sm" id="errorText"></p>
         </div>
 
-        <!-- Results Container -->
-        <div id="resultsContainer" class="hidden grid lg:grid-cols-3 gap-6">
-            <!-- Answer Section -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-                    <div class="flex items-center gap-2 mb-4 pb-4 border-b border-slate-200">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="resultsContainer" class="hidden flex flex-col lg:grid lg:grid-cols-3 gap-4 sm:gap-6">
+            <div class="lg:col-span-2 order-1">
+                <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 lg:p-8">
+                    <div class="flex items-center gap-2 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-slate-200">
+                        <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <h2 class="text-xl font-semibold text-slate-900">AI Answer</h2>
+                        <h2 class="text-lg sm:text-xl font-semibold text-slate-900">AI Answer</h2>
                     </div>
                     <div id="answerContent" class="markdown-content"></div>
                 </div>
             </div>
 
-            <!-- Sources Section -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sticky top-24">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="lg:col-span-1 order-2">
+                <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 lg:sticky lg:top-24">
+                    <h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                         </svg>
                         Sources
                     </h3>
-                    <div id="sourcesContent" class="space-y-3"></div>
+                    <div id="sourcesContent" class="space-y-2 sm:space-y-3"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="text-center py-16">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-4">
-                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="emptyState" class="text-center py-12 sm:py-16">
+            <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3 sm:mb-4">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
-            <h3 class="text-xl font-semibold text-slate-900 mb-2">
+            <h3 class="text-lg sm:text-xl font-semibold text-slate-900 mb-2">
                 Ready to search
             </h3>
-            <p class="text-slate-600 max-w-md mx-auto">
+            <p class="text-sm sm:text-base text-slate-600 max-w-md mx-auto px-4">
                 Enter your question above to get AI-powered answers with sources from across the web
             </p>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-200 bg-white/50 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p class="text-center text-sm text-slate-600">
+    <footer class="border-t border-slate-200 bg-white/50 mt-12 sm:mt-16">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6">
+            <p class="text-center text-xs sm:text-sm text-slate-600">
                 Powered by Google Custom Search API & Gemini AI
             </p>
         </div>
@@ -202,7 +212,6 @@
 
         function processMarkdown(text) {
             if (!text) return '';
-            
             let processed = text
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -212,9 +221,7 @@
                 .replace(/^[\-\*] (.+)$/gm, '<li>$1</li>')
                 .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
                 .replace(/`(.+?)`/g, '<code>$1</code>');
-            
             processed = processed.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
-            
             const lines = processed.split('\n');
             processed = lines.map(line => {
                 line = line.trim();
@@ -222,13 +229,13 @@
                 if (line.startsWith('<h') || line.startsWith('<ul') || line.startsWith('<li')) return line;
                 return `<p>${line}</p>`;
             }).join('');
-            
             return processed;
         }
 
         function showError(message) {
             document.getElementById('errorText').textContent = message;
             document.getElementById('errorMessage').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function hideError() {
@@ -239,8 +246,8 @@
             searchHistory = [query, ...searchHistory.filter(q => q !== query)].slice(0, 5);
             const historyContainer = document.getElementById('searchHistory');
             historyContainer.innerHTML = searchHistory.map(q => 
-                `<button onclick="document.getElementById('queryInput').value='${q.replace(/'/g, "\\'")}'" 
-                         class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm text-slate-700 transition-colors">
+                `<button onclick="document.getElementById('queryInput').value='${q.replace(/'/g, "\\'")}'; performSearch();" 
+                         class="px-2 sm:px-3 py-1.5 sm:py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs sm:text-sm text-slate-700 transition-colors">
                     ${q}
                 </button>`
             ).join('');
@@ -257,32 +264,30 @@
             
             const searchBtn = document.getElementById('searchBtn');
             searchBtn.disabled = true;
-            searchBtn.innerHTML = '<div class="spinner"></div><span>Searching...</span>';
+            searchBtn.innerHTML = '<div class="spinner"></div><span class="ml-2">Searching...</span>';
 
             try {
                 const response = await fetch('/api/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, top_k: 5 })
+                    body: JSON.stringify({ query, top_k: 3 })
                 });
 
                 if (!response.ok) throw new Error('Search failed');
 
                 const data = await response.json();
                 
-                // Display answer
                 document.getElementById('answerContent').innerHTML = processMarkdown(data.answer);
                 
-                // Display sources
                 const sourcesHTML = data.sources.map((source, idx) => `
                     <a href="${source.link}" target="_blank" rel="noopener noreferrer"
-                       class="block p-4 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200 hover:border-blue-300 group">
+                       class="block p-3 sm:p-4 bg-slate-50 hover:bg-slate-100 rounded-lg sm:rounded-xl transition-colors border border-slate-200 hover:border-blue-300 group">
                         <div class="flex items-start gap-2">
-                            <span class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium">
+                            <span class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
                                 ${idx + 1}
                             </span>
                             <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-slate-900 text-sm mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                                <h4 class="font-medium text-slate-900 text-xs sm:text-sm mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                                     ${source.title}
                                 </h4>
                                 <p class="text-xs text-slate-600 mb-2 line-clamp-2">
@@ -300,6 +305,12 @@
                 document.getElementById('resultsContainer').classList.remove('hidden');
                 updateSearchHistory(query);
                 
+                if (window.innerWidth < 1024) {
+                    setTimeout(() => {
+                        document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+                
             } catch (error) {
                 showError('Failed to perform search. Please try again.');
                 document.getElementById('emptyState').classList.remove('hidden');
@@ -316,8 +327,20 @@
 
         document.getElementById('searchBtn').addEventListener('click', performSearch);
         document.getElementById('queryInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
         });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
